@@ -62,8 +62,10 @@ class InstantMeshesRemesh(bpy.types.Operator):
     crease: bpy.props.IntProperty(name="Crease Degree", description="Dihedral angle threshold for creases", default=0, min=0, max=100)
     verts: bpy.props.IntProperty(name="Vertex Count", description="Desired vertex count of the output mesh", default=2000, min=10, max=50000)
     smooth: bpy.props.IntProperty(name="Smooth iterations", description="Number of smoothing & ray tracing reprojection steps (default: 2)", default=2, min=0, max=10)
-    remeshIt: bpy.props.BoolProperty(name="Start Remeshing", description="Activating it will start Remesh", default=False)
+    showwire: bpy.props.BoolProperty(name="Show Wireframes", description="Output with wireframe on", default=False)
     openUI: bpy.props.BoolProperty(name="Open in InstantMeshes", description="Opens the selected object in Instant Meshes and imports the result when you are done.", default=False)
+    remeshIt: bpy.props.BoolProperty(name="Start Remeshing", description="Activating it will start Remesh", default=False)
+
 
     loc = None
     rot = None
@@ -71,7 +73,7 @@ class InstantMeshesRemesh(bpy.types.Operator):
     meshname = None
 
     def execute(self, context):
-        exe = context.preferences.addons[__name__].preferences.filepath
+        exe = bpy.path.abspath(context.preferences.addons[__name__].preferences.filepath)
         orig = os.path.join(tempfile.gettempdir(), 'original.obj')
         output = os.path.join(tempfile.gettempdir(), 'out.obj')
 
@@ -171,7 +173,10 @@ class InstantMeshesRemesh(bpy.types.Operator):
             mesh.hide_viewport = True
             imported_mesh.select_set(state=False)
             os.remove(output)
-            bpy.context.space_data.overlay.show_wireframes = True
+            if self.showwire:
+            	bpy.context.space_data.overlay.show_wireframes = True
+            else:
+            	bpy.context.space_data.overlay.show_wireframes = False
 
             return {'FINISHED'}
         else:
