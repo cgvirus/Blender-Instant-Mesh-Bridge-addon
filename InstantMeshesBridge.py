@@ -63,6 +63,7 @@ class InstantMeshesRemesh(bpy.types.Operator):
     verts: bpy.props.IntProperty(name="Vertex Count", description="Desired vertex count of the output mesh", default=2000, min=10, max=50000)
     smooth: bpy.props.IntProperty(name="Smooth iterations", description="Number of smoothing & ray tracing reprojection steps (default: 2)", default=2, min=0, max=10)
     showwire: bpy.props.BoolProperty(name="Show Wireframes", description="Output with wireframe on", default=False)
+    temp_objs_to_proj_dirc: bpy.props.BoolProperty(name="Save temp obj in project directory", description="Save temporary objects in project directory", default=False)
     openUI: bpy.props.BoolProperty(name="Open in InstantMeshes", description="Opens the selected object in Instant Meshes and imports the result when you are done.", default=False)
     remeshIt: bpy.props.BoolProperty(name="Start Remeshing", description="Activating it will start Remesh", default=False)
 
@@ -74,8 +75,23 @@ class InstantMeshesRemesh(bpy.types.Operator):
 
     def execute(self, context):
         exe = bpy.path.abspath(context.preferences.addons[__name__].preferences.filepath)
-        orig = os.path.join(tempfile.gettempdir(), 'original.obj')
-        output = os.path.join(tempfile.gettempdir(), 'out.obj')
+        projpath = bpy.data.filepath
+        directory = os.path.dirname(projpath)
+        if self.temp_objs_to_proj_dirc:
+        	if bpy.data.is_saved:
+        		dirname = os.path.join(directory,'instantmeshes_temp')
+        		if not os.path.exists(dirname):
+        			os.makedirs(dirname)
+        		else:
+        			pass
+        		orig = os.path.join(dirname,'original.obj')
+        		output = os.path.join(dirname,'out.obj')
+        	else:
+        		self.report({'ERROR'}, 'File not saved!')
+        		return {'CANCELLED'}
+        else:
+        	orig = os.path.join(tempfile.gettempdir(), 'original.obj')
+        	output = os.path.join(tempfile.gettempdir(), 'out.obj')
 
         if self.remeshIt:
 
