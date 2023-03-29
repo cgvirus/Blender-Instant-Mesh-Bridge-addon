@@ -19,12 +19,30 @@
 
 bl_info = {
     "name": "Instant Meshes Remesh",
-    "description": "Remesh using instant meshes app"
+    "description": "Remesh using instant meshes app",
     "author": "knekke, cgvirus",
     "version": (2, 0),
-    "blender": (3, 00, 0),
+    "blender": (2, 90, 3),
     "category": "Object",
     "wiki_url": "https://github.com/cgvirus/Blender-Instant-Mesh-Bridge-addon"
 }
 
-from .Instant_Meshes_Bridge import *
+import bpy
+from . import Instant_Meshes_Remesh
+
+
+modules = Instant_Meshes_Remesh
+
+
+def register():
+    from bpy.utils import register_class
+    modules.register()
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    modules.unregister()
+
+
+if __name__ == "__main__":
+    register()
