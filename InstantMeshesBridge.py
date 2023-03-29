@@ -8,7 +8,7 @@ bl_info = {
     "name": "Instant Meshes Remesh",
     "author": "knekke, cgvirus",
     "category": "Object",
-    "blender": (2, 80, 0),
+    "blender": (3, 00, 0),
 }
 
 
