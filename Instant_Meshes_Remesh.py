@@ -51,27 +51,6 @@ class InstantMeshesRemeshPrefs(bpy.types.AddonPreferences):
         layout.prop(self, "filepath")
 
 
-# class InstantMeshesRemeshBatch(bpy.types.Operator):
-#     """Remesh selected objects with last used settings"""
-#     bl_idname = "object.instant_meshes_remesh_batch"
-#     bl_label = "Instant Meshes Remesh BATCH"
-#     bl_options = {'REGISTER', 'UNDO'}
-
-#     def execute(self, context):
-#         s = bpy.context.selected_objects
-#         for other_obj in bpy.data.objects:
-#                     other_obj.select_set(state= False)
-#         for i in s:
-#             i.select_set(state= True)
-#             bpy.context.view_layer.objects.active = i
-#             bpy.ops.object.instant_meshes_remesh()
-#             for slot, mat in enumerate(i.data.materials):
-#                 bpy.data.objects[i.name+'_remesh'].data.materials[slot] = mat.copy()
-#                 bpy.data.objects[i.name+'_remesh'].data.materials[slot].diffuse_color = (0.3,1,0.3)
-#             i.select_set(state= False)
-#             bpy.context.view_layer.objects.active = None
-#         return {'FINISHED'}
-#########################################
 class InstantMeshesRemesh(bpy.types.Operator):
     """Remesh by using the Instant Meshes program"""
     bl_idname = "object.instant_meshes_remesh"
@@ -89,7 +68,7 @@ class InstantMeshesRemesh(bpy.types.Operator):
     showwire: bpy.props.BoolProperty(name="Show Wireframes", description="Output with wireframe on", default=False)
     temp_objs_to_proj_dirc: bpy.props.BoolProperty(name="Save temp obj in project directory", description="Save temporary objects in project directory", default=False)
     openUI: bpy.props.BoolProperty(name="Open in InstantMeshes", description="Opens the selected object in Instant Meshes and imports the result when you are done.", default=False)
-    remeshIt: bpy.props.BoolProperty(name="Start Remeshing", description="Activating it will start Remesh", default=False)
+    # remeshIt: bpy.props.BoolProperty(name="Start Remeshing", description="Activating it will start Remesh", default=False)
 
 
     loc = None
@@ -101,6 +80,9 @@ class InstantMeshesRemesh(bpy.types.Operator):
         exe = bpy.path.abspath(context.preferences.addons[__package__].preferences.filepath)
         projpath = bpy.data.filepath
         directory = os.path.dirname(projpath)
+
+
+
         if self.temp_objs_to_proj_dirc:
         	if bpy.data.is_saved:
         		dirname = os.path.join(directory,'instantmeshes_temp')
@@ -117,110 +99,112 @@ class InstantMeshesRemesh(bpy.types.Operator):
         	orig = os.path.join(tempfile.gettempdir(), 'original.obj')
         	output = os.path.join(tempfile.gettempdir(), 'out.obj')
 
-        if self.remeshIt:
+        # if self.remeshIt:
 
-            if not self.exported:
-                try:
-                    os.remove(orig)
-                except:
-                    pass
-                self.meshname = bpy.context.active_object.name
-                mesh = bpy.context.active_object
-                # self.loc = mesh.matrix_world.to_translation()
-                # self.rot = mesh.matrix_world.to_euler('XYZ')
-                # self.scl = mesh.matrix_world.to_scale()
-                # bpy.ops.object.location_clear()
-                # bpy.ops.object.rotation_clear()
-                # bpy.ops.object.scale_clear()
-                bpy.ops.export_scene.obj(filepath=orig,
-                                         check_existing=False,
-                                         axis_forward='-Z', axis_up='Y',
-                                         use_selection=True,
-                                         use_mesh_modifiers=True,
-                                         # use_mesh_modifiers_render=False,
-                                         use_edges=True,
-                                         use_smooth_groups=False,
-                                         use_smooth_groups_bitflags=False,
-                                         use_normals=True,
-                                         use_uvs=True, )
-
-                self.exported = True
-                # mesh.location = self.loc
-                # mesh.rotation_euler = self.rot
-                # mesh.scale = self.scl
-
-            mesh = bpy.data.objects[self.meshname]
-            mesh.hide_viewport = False
-            options = ['-c', str(self.crease),
-                       '-v', str(self.verts),
-                       '-S', str(self.smooth),
-                       '-o', output]
-            if self.deterministic:
-                options.append('-d')
-            if self.dominant:
-                options.append('-D')
-            if self.intrinsic:
-                options.append('-i')
-            if self.boundaries:
-                options.append('-b')
-
-            cmd = [exe] + options + [orig]
-
-            print (cmd)
-
-            if self.openUI:
-                os.chdir(os.path.dirname(orig))
-                shutil.copy2(orig, output)
-                subprocess.run([exe, output])
-                self.openUI = False
-            else:
-                subprocess.run(cmd)
-
-            bpy.ops.import_scene.obj(filepath=output,
-                                     use_split_objects=False,
+        if not self.exported:
+            try:
+                os.remove(orig)
+            except:
+                pass
+            self.meshname = bpy.context.active_object.name
+            mesh = bpy.context.active_object
+            # self.loc = mesh.matrix_world.to_translation()
+            # self.rot = mesh.matrix_world.to_euler('XYZ')
+            # self.scl = mesh.matrix_world.to_scale()
+            # bpy.ops.object.location_clear()
+            # bpy.ops.object.rotation_clear()
+            # bpy.ops.object.scale_clear()
+            bpy.ops.export_scene.obj(filepath=orig,
+                                     check_existing=False,
+                                     axis_forward='-Z', axis_up='Y',
+                                     use_selection=True,
+                                     use_mesh_modifiers=True,
+                                     # use_mesh_modifiers_render=False,
+                                     use_edges=True,
                                      use_smooth_groups=False,
-                                     use_image_search=False,
-                                     axis_forward='-Z', axis_up='Y')
-            imported_mesh = bpy.context.selected_objects[0]
-            # imported_mesh.location = self.loc
-            # imported_mesh.rotation_euler = self.rot
-            # imported_mesh.scale = self.scl
-            print(mesh, mesh.name)
-            imported_mesh.name = mesh.name + '_remesh'
-            for i in mesh.data.materials:
-                print('setting mat: ' + i.name)
-                imported_mesh.data.materials.append(i)
-            for edge in imported_mesh.data.edges:
-                edge.use_edge_sharp = False
-            for other_obj in bpy.data.objects:
-                other_obj.select_set(state=False)
-            imported_mesh.select_set(state=True)
-            imported_mesh.active_material.use_nodes = False
-            imported_mesh.data.use_auto_smooth = False
+                                     use_smooth_groups_bitflags=False,
+                                     use_normals=True,
+                                     use_uvs=True, )
 
-            bpy.ops.object.shade_flat()
-            bpy.ops.mesh.customdata_custom_splitnormals_clear()
+            self.exported = True
+            # mesh.location = self.loc
+            # mesh.rotation_euler = self.rot
+            # mesh.scale = self.scl
 
-            mesh.select_set(state=True)
-            bpy.context.view_layer.objects.active = mesh
-            bpy.ops.object.data_transfer(use_reverse_transfer=False,
-                                         use_freeze=False, data_type='UV', use_create=True, vert_mapping='NEAREST',
-                                         edge_mapping='NEAREST', loop_mapping='NEAREST_POLYNOR', poly_mapping='NEAREST',
-                                         use_auto_transform=False, use_object_transform=True, use_max_distance=False,
-                                         max_distance=1.0, ray_radius=0.0, islands_precision=0.1, layers_select_src='ACTIVE',
-                                         layers_select_dst='ACTIVE', mix_mode='REPLACE', mix_factor=1.0)
-            mesh.select_set(state=False)
-            mesh.hide_viewport = True
-            imported_mesh.select_set(state=False)
-            os.remove(output)
-            if self.showwire:
-            	bpy.context.space_data.overlay.show_wireframes = True
-            else:
-            	bpy.context.space_data.overlay.show_wireframes = False
+        mesh = bpy.data.objects[self.meshname]
+        mesh.hide_viewport = False
+        options = ['-c', str(self.crease),
+                   '-v', str(self.verts),
+                   '-S', str(self.smooth),
+                   '-o', output]
+        if self.deterministic:
+            options.append('-d')
+        if self.dominant:
+            options.append('-D')
+        if self.intrinsic:
+            options.append('-i')
+        if self.boundaries:
+            options.append('-b')
 
-            return {'FINISHED'}
+        cmd = [exe] + options + [orig]
+
+        print (cmd)
+
+        if self.openUI:
+            os.chdir(os.path.dirname(orig))
+            shutil.copy2(orig, output)
+            subprocess.run([exe, output])
+            self.openUI = False
         else:
-            return {'FINISHED'}
+            subprocess.run(cmd)
+
+        bpy.ops.import_scene.obj(filepath=output,
+                                 use_split_objects=False,
+                                 use_smooth_groups=False,
+                                 use_image_search=False,
+                                 axis_forward='-Z', axis_up='Y')
+        imported_mesh = bpy.context.selected_objects[0]
+        # imported_mesh.location = self.loc
+        # imported_mesh.rotation_euler = self.rot
+        # imported_mesh.scale = self.scl
+        print(mesh, mesh.name)
+        imported_mesh.name = mesh.name + '_remesh'
+        for i in mesh.data.materials:
+            print('setting mat: ' + i.name)
+            imported_mesh.data.materials.append(i)
+        for edge in imported_mesh.data.edges:
+            edge.use_edge_sharp = False
+        for other_obj in bpy.data.objects:
+            other_obj.select_set(state=False)
+        imported_mesh.select_set(state=True)
+        imported_mesh.active_material.use_nodes = False
+        imported_mesh.data.use_auto_smooth = False
+
+        bpy.ops.object.shade_flat()
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()
+
+        mesh.select_set(state=True)
+        bpy.context.view_layer.objects.active = mesh
+        bpy.ops.object.data_transfer(use_reverse_transfer=False,
+                                     use_freeze=False, data_type='UV', use_create=True, vert_mapping='NEAREST',
+                                     edge_mapping='NEAREST', loop_mapping='NEAREST_POLYNOR', poly_mapping='NEAREST',
+                                     use_auto_transform=False, use_object_transform=True, use_max_distance=False,
+                                     max_distance=1.0, ray_radius=0.0, islands_precision=0.1, layers_select_src='ACTIVE',
+                                     layers_select_dst='ACTIVE', mix_mode='REPLACE', mix_factor=1.0)
+        mesh.select_set(state=False)
+        mesh.hide_viewport = True
+        imported_mesh.select_set(state=False)
+        os.remove(output)
+        if self.showwire:
+        	bpy.context.space_data.overlay.show_wireframes = True
+        else:
+        	bpy.context.space_data.overlay.show_wireframes = False
+
+        return {'FINISHED'}
+        
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width = 400)
 ##############################################
 
 
@@ -232,7 +216,6 @@ def menu_func(self, context):
 classes = (
     InstantMeshesRemeshPrefs,
     InstantMeshesRemesh
-    # InstantMeshesRemeshBatch,
 )
 
 
