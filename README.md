@@ -9,8 +9,8 @@ Main dev: https://github.com/knekke/blender_addons
 # Use:
 - Download the zip file:
 https://github.com/cgvirus/Blender-Instant-Mesh-Bridge-addon/archive/refs/heads/master.zip
-- Frome Blender assond prefference install the zip.
-- in addon prefference point the instant meshes executable path.
+- Frome Blender addon preference install the zip.
+- in addon preference point the instant meshes executable path.
 - select the object and in Blender object menu>instant meshes remesh
 
 
