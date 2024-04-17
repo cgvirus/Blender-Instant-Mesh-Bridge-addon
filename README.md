@@ -1,6 +1,7 @@
 # INSTALL (UPDATED):
-- Download the zip file:
-https://github.com/cgvirus/Blender-Instant-Mesh-Bridge-addon/archive/refs/heads/master.zip
+- Download the zip file from releases:
+https://github.com/cgvirus/Blender-Instant-Mesh-Bridge-addon/releases
+- Remove old addon(if any) and restart blender
 - Frome Blender addon preference install the zip.
 - in addon preference point the instant meshes executable path.
 - select the object and in Blender object menu>instant meshes remesh
