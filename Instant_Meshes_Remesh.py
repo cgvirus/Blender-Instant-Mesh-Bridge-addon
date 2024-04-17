@@ -20,8 +20,8 @@ bl_info = {
     "name": "Instant Meshes Remesh",
     "description": "Remesh using instant meshes app",
     "author": "knekke, cgvirus",
-    "version": (2, 0),
-    "blender": (2, 90, 3),
+    "version": (3, 0),
+    "blender": (4, 00, 0),
     "category": "Object",
     "wiki_url": "https://github.com/cgvirus/Blender-Instant-Mesh-Bridge-addon"
 }
@@ -113,17 +113,17 @@ class InstantMeshesRemesh(bpy.types.Operator):
             # bpy.ops.object.location_clear()
             # bpy.ops.object.rotation_clear()
             # bpy.ops.object.scale_clear()
-            bpy.ops.export_scene.obj(filepath=orig,
+            bpy.ops.wm.obj_export(filepath=orig,
                                      check_existing=False,
-                                     axis_forward='-Z', axis_up='Y',
-                                     use_selection=True,
-                                     use_mesh_modifiers=True,
+                                     forward_axis='NEGATIVE_Z', up_axis='Y',
+                                     export_selected_objects=True,
+                                     apply_modifiers=True,
                                      # use_mesh_modifiers_render=False,
-                                     use_edges=True,
-                                     use_smooth_groups=False,
-                                     use_smooth_groups_bitflags=False,
-                                     use_normals=True,
-                                     use_uvs=True, )
+                                     # use_edges=True,
+                                     export_smooth_groups=False,
+                                     smooth_group_bitflags=False,
+                                     export_normals=True,
+                                     export_uv=True, )
 
             self.exported = True
             # mesh.location = self.loc
@@ -157,11 +157,11 @@ class InstantMeshesRemesh(bpy.types.Operator):
         else:
             subprocess.run(cmd)
 
-        bpy.ops.import_scene.obj(filepath=output,
+        bpy.ops.wm.obj_import(filepath=output,
                                  use_split_objects=False,
-                                 use_smooth_groups=False,
-                                 use_image_search=False,
-                                 axis_forward='-Z', axis_up='Y')
+                                 use_split_groups=False,
+                                 filter_image=False,
+                                 forward_axis='NEGATIVE_Z', up_axis='Y')
         imported_mesh = bpy.context.selected_objects[0]
         # imported_mesh.location = self.loc
         # imported_mesh.rotation_euler = self.rot
@@ -177,7 +177,7 @@ class InstantMeshesRemesh(bpy.types.Operator):
             other_obj.select_set(state=False)
         imported_mesh.select_set(state=True)
         imported_mesh.active_material.use_nodes = False
-        imported_mesh.data.use_auto_smooth = False
+        # imported_mesh.data.use_auto_smooth = False
 
         bpy.ops.object.shade_flat()
         bpy.ops.mesh.customdata_custom_splitnormals_clear()

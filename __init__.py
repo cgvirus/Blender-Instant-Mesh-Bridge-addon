@@ -21,8 +21,8 @@ bl_info = {
     "name": "Instant Meshes Remesh",
     "description": "Remesh using instant meshes app",
     "author": "knekke, cgvirus",
-    "version": (2, 0),
-    "blender": (2, 90, 3),
+    "version": (3, 0),
+    "blender": (4, 00, 0),
     "category": "Object",
     "wiki_url": "https://github.com/cgvirus/Blender-Instant-Mesh-Bridge-addon"
 }
