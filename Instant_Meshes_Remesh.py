@@ -176,7 +176,7 @@ class InstantMeshesRemesh(bpy.types.Operator):
         for other_obj in bpy.data.objects:
             other_obj.select_set(state=False)
         imported_mesh.select_set(state=True)
-        imported_mesh.active_material.use_nodes = False
+        # imported_mesh.active_material.use_nodes = False
         # imported_mesh.data.use_auto_smooth = False
 
         bpy.ops.object.shade_flat()
